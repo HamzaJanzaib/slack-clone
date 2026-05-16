@@ -81,6 +81,20 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --shopify-link: #005bd3;
+  --shopify-link-hover: #004db3;
+  --shopify-input-bg: #f6f6f7;
+  --shopify-input-border: #8c9196;
+  --shopify-soft-bg: #f1f1f1;
+  --shopify-soft-hover: #e3e3e3;
+  --shopify-card-shadow: 0 8px 28px rgb(0 0 0 / 0.12), 0 2px 6px rgb(0 0 0 / 0.06);
+  --shopify-input-shadow: inset 0 1px 0 0 rgb(0 0 0 / 0.05);
+  --shopify-input-focus-shadow: 0 0 0 1px #005bd3, 0 0 0 3px rgb(0 91 211 / 0.2);
+  --shopify-button-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.13), 0 1px 0 0 #000,
+    0 1px 2px 0 rgb(0 0 0 / 0.15);
+  --shopify-button-shadow-hover: inset 0 1px 0 0 rgb(255 255 255 / 0.16), 0 1px 0 0 #000,
+    0 2px 4px 0 rgb(0 0 0 / 0.18);
+  --shopify-button-shadow-active: inset 0 2px 3px 0 rgb(0 0 0 / 0.25);
 }
 
 .dark {
@@ -115,6 +129,41 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --shopify-card-shadow: 0 8px 28px rgb(0 0 0 / 0.45), 0 2px 6px rgb(0 0 0 / 0.3);
+  --shopify-input-bg: oklch(0.269 0 0);
+  --shopify-input-border: oklch(1 0 0 / 20%);
+  --shopify-input-shadow: inset 0 1px 0 0 rgb(0 0 0 / 0.2);
+  --shopify-input-focus-shadow: 0 0 0 1px #449fff, 0 0 0 3px rgb(68 159 255 / 0.25);
+  --shopify-button-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.1), 0 1px 0 0 #000,
+    0 1px 2px 0 rgb(0 0 0 / 0.35);
+  --shopify-button-shadow-hover: inset 0 1px 0 0 rgb(255 255 255 / 0.12), 0 1px 0 0 #000,
+    0 2px 4px 0 rgb(0 0 0 / 0.4);
+  --shopify-soft-bg: oklch(0.32 0 0);
+  --shopify-soft-hover: oklch(0.38 0 0);
+}
+
+@utility shadow-shopify-card {
+  box-shadow: var(--shopify-card-shadow);
+}
+
+@utility shadow-shopify-input {
+  box-shadow: var(--shopify-input-shadow);
+}
+
+@utility shadow-shopify-input-focus {
+  box-shadow: var(--shopify-input-focus-shadow);
+}
+
+@utility shadow-shopify-button {
+  box-shadow: var(--shopify-button-shadow);
+}
+
+@utility shadow-shopify-button-hover {
+  box-shadow: var(--shopify-button-shadow-hover);
+}
+
+@utility shadow-shopify-button-active {
+  box-shadow: var(--shopify-button-shadow-active);
 }
 
 @layer base {

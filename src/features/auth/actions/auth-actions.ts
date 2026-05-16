@@ -23,3 +23,22 @@ export async function signInWithGoogle(): Promise<void> {
 export async function signInWithGithub(): Promise<void> {
   // TODO: implement Github OAuth
 }
+
+export type RequestPasswordResetPayload = {
+  email: string
+}
+
+export type ResetPasswordPayload = {
+  token: string
+  password: string
+}
+
+export async function requestPasswordReset(
+  _payload: RequestPasswordResetPayload
+): Promise<void> {
+  // TODO: implement password reset email
+}
+
+export async function resetPassword(_payload: ResetPasswordPayload): Promise<void> {
+  // TODO: implement password reset
+}

@@ -57,3 +57,22 @@ export function validateSignUpForm(
 export function hasAuthErrors(errors: AuthFieldErrors): boolean {
   return Object.keys(errors).length > 0
 }
+
+export function validateForgotPasswordForm(email: string): AuthFieldErrors {
+  const errors: AuthFieldErrors = {}
+  const emailError = validateEmail(email)
+  if (emailError) errors.email = emailError
+  return errors
+}
+
+export function validateResetPasswordForm(
+  password: string,
+  confirmPassword: string
+): AuthFieldErrors {
+  const errors: AuthFieldErrors = {}
+  const passwordError = validatePassword(password)
+  const confirmPasswordError = validateConfirmPassword(password, confirmPassword)
+  if (passwordError) errors.password = passwordError
+  if (confirmPasswordError) errors.confirmPassword = confirmPasswordError
+  return errors
+}

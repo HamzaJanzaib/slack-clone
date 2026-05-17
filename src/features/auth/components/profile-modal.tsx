@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useQuery, useMutation } from "convex/react"
 import { api } from "../../../../convex/_generated/api"
 import {
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Camera } from "lucide-react"
+import { Camera, Loader2 } from "lucide-react"
 
 type ProfileModalProps = {
     open: boolean
@@ -41,9 +41,14 @@ function getInitials(name?: string | null, email?: string | null): string {
 export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     const currentUser = useQuery(api.users.currentUser)
     const updateProfile = useMutation(api.users.updateProfile)
+    const generateUploadUrl = useMutation(api.upload.generateUploadUrl)
 
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const [name, setName] = useState("")
     const [phone, setPhone] = useState("")
+    const [previewImage, setPreviewImage] = useState<string | null>(null)
+    const [selectedStorageId, setSelectedStorageId] = useState<string | null>(null)
+    const [isUploading, setIsUploading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [saved, setSaved] = useState(false)
 
@@ -52,13 +57,16 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         if (currentUser) {
             setName(currentUser.name ?? "")
             setPhone(currentUser.phone ?? "")
+            setPreviewImage(currentUser.image ?? null)
+            setSelectedStorageId(null)
         }
     }, [currentUser])
 
-    // Reset saved state when modal opens
+    // Reset saved/upload state when modal opens
     useEffect(() => {
         if (open) {
             setSaved(false)
+            setIsUploading(false)
         }
     }, [open])
 
@@ -67,6 +75,43 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     const initials = getInitials(currentUser.name, currentUser.email)
     const displayEmail = currentUser.email ?? ""
 
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click()
+    }
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setIsUploading(true)
+        // Instantly show local image preview
+        const localPreview = URL.createObjectURL(file)
+        setPreviewImage(localPreview)
+
+        try {
+            // 1. Get temporary upload URL
+            const postUrl = await generateUploadUrl()
+
+            // 2. Upload file to Convex storage
+            const result = await fetch(postUrl, {
+                method: "POST",
+                headers: { "Content-Type": file.type },
+                body: file,
+            })
+
+            if (!result.ok) throw new Error("Upload failed")
+
+            const { storageId } = await result.json()
+            setSelectedStorageId(storageId)
+        } catch (error) {
+            console.error("Error uploading image:", error)
+            setPreviewImage(currentUser.image ?? null)
+            alert("Failed to upload image. Please try again.")
+        } finally {
+            setIsUploading(false)
+        }
+    }
+
     const handleSave = async () => {
         setIsSaving(true)
         setSaved(false)
@@ -74,8 +119,10 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
             await updateProfile({
                 name: name.trim() || undefined,
                 phone: phone.trim() || undefined,
+                ...(selectedStorageId && { storageId: selectedStorageId }),
             })
             setSaved(true)
+            setSelectedStorageId(null)
             setTimeout(() => setSaved(false), 2000)
         } finally {
             setIsSaving(false)
@@ -84,7 +131,8 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
     const hasChanges =
         (name.trim() || "") !== (currentUser.name ?? "") ||
-        (phone.trim() || "") !== (currentUser.phone ?? "")
+        (phone.trim() || "") !== (currentUser.phone ?? "") ||
+        selectedStorageId !== null
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -98,13 +146,26 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
                 <Separator />
 
+                {/* Hidden File Input */}
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    disabled={isUploading || isSaving}
+                />
+
                 {/* Avatar section */}
                 <div className="flex items-center gap-4">
-                    <div className="relative group cursor-pointer">
+                    <div
+                        onClick={handleAvatarClick}
+                        className="relative group cursor-pointer rounded-full overflow-hidden transition-opacity hover:opacity-90"
+                    >
                         <Avatar size="lg">
-                            {currentUser.image && (
+                            {previewImage && (
                                 <AvatarImage
-                                    src={currentUser.image}
+                                    src={previewImage}
                                     alt={currentUser.name ?? "User"}
                                 />
                             )}
@@ -112,8 +173,12 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                                 {initials}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-                            <Camera className="size-4 text-white" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                            {isUploading ? (
+                                <Loader2 className="size-4 animate-spin text-white" />
+                            ) : (
+                                <Camera className="size-4 text-white" />
+                            )}
                         </div>
                     </div>
                     <div className="flex flex-col">
@@ -123,6 +188,11 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                         <p className="text-xs text-muted-foreground">
                             {displayEmail}
                         </p>
+                        {isUploading && (
+                            <p className="text-[10px] text-primary animate-pulse mt-0.5">
+                                Uploading image...
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -174,12 +244,13 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                         variant="outline"
                         onClick={() => onOpenChange(false)}
                         className="cursor-pointer"
+                        disabled={isUploading || isSaving}
                     >
                         Cancel
                     </Button>
                     <Button
                         onClick={handleSave}
-                        disabled={isSaving || !hasChanges}
+                        disabled={isUploading || isSaving || !hasChanges}
                         className="cursor-pointer"
                     >
                         {isSaving ? "Saving..." : "Save changes"}

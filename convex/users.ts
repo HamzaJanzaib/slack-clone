@@ -18,16 +18,21 @@ export const updateProfile = mutation({
     name: v.optional(v.string()),
     phone: v.optional(v.string()),
     image: v.optional(v.string()),
+    storageId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
       throw new Error("Not authenticated");
     }
+    let imageUrl = args.image;
+    if (args.storageId) {
+      imageUrl = await ctx.storage.getUrl(args.storageId) ?? undefined;
+    }
     await ctx.db.patch(userId, {
       ...(args.name !== undefined && { name: args.name }),
       ...(args.phone !== undefined && { phone: args.phone }),
-      ...(args.image !== undefined && { image: args.image }),
+      ...(imageUrl !== undefined && { image: imageUrl }),
     });
   },
 });

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useAuthActions } from "@convex-dev/auth/react"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -17,11 +18,6 @@ import { Label } from "@/components/ui/label"
 import { AuthOrDivider } from "@/features/auth/components/auth-or-divider"
 import { FieldError } from "@/features/auth/components/field-error"
 import {
-    signInWithEmail,
-    signInWithGithub,
-    signInWithGoogle,
-} from "@/features/auth/actions/auth-actions"
-import {
     AuthFieldErrors,
     hasAuthErrors,
     validateSignInForm,
@@ -37,6 +33,7 @@ type SignInCardProps = {
 }
 
 export function SignInCard({ setStatus, isLoading, setIsLoading }: SignInCardProps) {
+    const { signIn } = useAuthActions()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [errors, setErrors] = useState<AuthFieldErrors>({})
@@ -58,7 +55,13 @@ export function SignInCard({ setStatus, isLoading, setIsLoading }: SignInCardPro
 
         setIsLoading(true)
         try {
-            await signInWithEmail({ email, password })
+            const formData = new FormData()
+            formData.set("email", email)
+            formData.set("password", password)
+            formData.set("flow", "signIn")
+            await signIn("password", formData)
+        } catch {
+            setErrors({ email: "Invalid email or password" })
         } finally {
             setIsLoading(false)
         }
@@ -67,11 +70,7 @@ export function SignInCard({ setStatus, isLoading, setIsLoading }: SignInCardPro
     const handleOAuth = async (provider: "google" | "github") => {
         setIsLoading(true)
         try {
-            if (provider === "google") {
-                await signInWithGoogle()
-            } else {
-                await signInWithGithub()
-            }
+            await signIn(provider, { redirectTo: "/" })
         } finally {
             setIsLoading(false)
         }

@@ -137,7 +137,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                             placeholder="Your name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="border-[var(--shopify-input-border)] shadow-shopify-input focus:shadow-shopify-input-focus"
+                            className="border-(--shopify-input-border) shadow-shopify-input focus:shadow-shopify-input-focus"
                         />
                     </div>
                     <div className="grid gap-2">
@@ -146,7 +146,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                             id="profile-email"
                             value={displayEmail}
                             disabled
-                            className="border-[var(--shopify-input-border)] opacity-60"
+                            className="border-(--shopify-input-border) opacity-60"
                         />
                         <p className="text-xs text-muted-foreground">
                             Email cannot be changed
@@ -159,7 +159,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                             placeholder="Your phone number"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className="border-[var(--shopify-input-border)] shadow-shopify-input focus:shadow-shopify-input-focus"
+                            className="border-(--shopify-input-border) shadow-shopify-input focus:shadow-shopify-input-focus"
                         />
                     </div>
                 </div>

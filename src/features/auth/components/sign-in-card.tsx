@@ -119,7 +119,7 @@ export function SignInCard({ setStatus, isLoading, setIsLoading }: SignInCardPro
                                 <Label htmlFor="password">Password</Label>
                                 <Link
                                     href="/forgot-password"
-                                    className="ml-auto inline-block cursor-pointer text-sm text-[var(--shopify-link)] underline-offset-4 hover:text-[var(--shopify-link-hover)] hover:underline"
+                                    className="ml-auto inline-block cursor-pointer text-sm text-(--shopify-link) underline-offset-4 hover:text-(--shopify-link-hover) hover:underline"
                                 >
                                     Forgot your password?
                                 </Link>

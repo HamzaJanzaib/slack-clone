@@ -136,7 +136,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                                     ${
                                         theme === value
                                             ? "border-primary bg-primary/5 text-primary shadow-shopify-input-focus"
-                                            : "border-[var(--shopify-input-border)] text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+                                            : "border-(--shopify-input-border) text-muted-foreground hover:border-foreground/30 hover:text-foreground"
                                     }
                                 `}
                             >
@@ -177,7 +177,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                                         return next
                                     })
                                 }}
-                                className="border-[var(--shopify-input-border)] shadow-shopify-input focus:shadow-shopify-input-focus"
+                                className="border-(--shopify-input-border) shadow-shopify-input focus:shadow-shopify-input-focus"
                             />
                             <FieldError message={errors.currentPassword} />
                         </div>
@@ -198,7 +198,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                                         return next
                                     })
                                 }}
-                                className="border-[var(--shopify-input-border)] shadow-shopify-input focus:shadow-shopify-input-focus"
+                                className="border-(--shopify-input-border) shadow-shopify-input focus:shadow-shopify-input-focus"
                             />
                             <FieldError message={errors.newPassword} />
                         </div>
@@ -219,7 +219,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                                         return next
                                     })
                                 }}
-                                className="border-[var(--shopify-input-border)] shadow-shopify-input focus:shadow-shopify-input-focus"
+                                className="border-(--shopify-input-border) shadow-shopify-input focus:shadow-shopify-input-focus"
                             />
                             <FieldError message={errors.confirmPassword} />
                         </div>

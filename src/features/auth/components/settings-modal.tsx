@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { useTheme } from "next-themes"
-import { useAuthActions } from "@convex-dev/auth/react"
+import { useAction } from "convex/react"
+import { api } from "../../../../convex/_generated/api"
 import {
     Dialog,
     DialogContent,
@@ -30,7 +31,7 @@ const themeOptions = [
 ] as const
 
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
-    const { signIn } = useAuthActions()
+    const changePassword = useAction(api.users.changePassword)
     const { theme, setTheme } = useTheme()
 
     const [currentPassword, setCurrentPassword] = useState("")
@@ -84,24 +85,27 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         setErrors({})
 
         try {
-            const formData = new FormData()
-            formData.set("password", newPassword)
-            formData.set("flow", "signIn")
-            formData.set("currentPassword", currentPassword)
-            formData.set("newPassword", newPassword)
-
-            await signIn("password", formData)
+            await changePassword({
+                currentPassword,
+                newPassword,
+            })
 
             setSuccess(true)
             setCurrentPassword("")
             setNewPassword("")
             setConfirmPassword("")
             setTimeout(() => setSuccess(false), 3000)
-        } catch {
-            setErrors({
-                currentPassword:
-                    "Failed to change password. Check your current password.",
-            })
+        } catch (error: any) {
+            const message = error?.message || ""
+            if (message.includes("Incorrect current password")) {
+                setErrors({
+                    currentPassword: "Incorrect current password.",
+                })
+            } else {
+                setErrors({
+                    currentPassword: "Failed to change password. Please try again.",
+                })
+            }
         } finally {
             setIsSaving(false)
         }

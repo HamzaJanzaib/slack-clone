@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { FieldError } from "@/features/auth/components/field-error"
-import { requestPasswordReset } from "@/features/auth/actions/auth-actions"
+import { useAuthActions } from "@convex-dev/auth/react"
 import {
   AuthFieldErrors,
   hasAuthErrors,
@@ -27,6 +27,7 @@ type ForgotPasswordCardProps = {
 }
 
 export function ForgotPasswordCard({ isLoading, setIsLoading }: ForgotPasswordCardProps) {
+  const { signIn } = useAuthActions()
   const [email, setEmail] = useState("")
   const [errors, setErrors] = useState<AuthFieldErrors>({})
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -48,8 +49,13 @@ export function ForgotPasswordCard({ isLoading, setIsLoading }: ForgotPasswordCa
 
     setIsLoading(true)
     try {
-      await requestPasswordReset({ email })
+      const formData = new FormData()
+      formData.set("email", email)
+      formData.set("flow", "reset")
+      await signIn("password", formData)
       setIsSubmitted(true)
+    } catch {
+      setErrors({ email: "Failed to send reset link. Please try again." })
     } finally {
       setIsLoading(false)
     }

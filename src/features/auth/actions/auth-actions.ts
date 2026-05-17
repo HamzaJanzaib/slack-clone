@@ -1,3 +1,7 @@
+"use server"
+
+import { auth } from "@convex-dev/auth/nextjs/server";
+
 export type SignInPayload = {
   email: string
   password: string
@@ -8,20 +12,38 @@ export type SignUpPayload = {
   password: string
 }
 
-export async function signInWithEmail(_payload: SignInPayload): Promise<void> {
-  // TODO: implement email sign in
+export async function signInWithEmail(payload: SignInPayload): Promise<void> {
+  await auth.signIn("password", {
+    email: payload.email,
+    password: payload.password,
+    flow: "signIn",
+    redirect: true,
+    redirectTo: "/",
+  });
 }
 
-export async function signUpWithEmail(_payload: SignUpPayload): Promise<void> {
-  // TODO: implement email sign up
+export async function signUpWithEmail(payload: SignUpPayload): Promise<void> {
+  await auth.signIn("password", {
+    email: payload.email,
+    password: payload.password,
+    flow: "signUp",
+    redirect: true,
+    redirectTo: "/",
+  });
 }
 
 export async function signInWithGoogle(): Promise<void> {
-  // TODO: implement Google OAuth
+  await auth.signIn("google", {
+    redirect: true,
+    redirectTo: "/",
+  });
 }
 
 export async function signInWithGithub(): Promise<void> {
-  // TODO: implement Github OAuth
+  await auth.signIn("github", {
+    redirect: true,
+    redirectTo: "/",
+  });
 }
 
 export type RequestPasswordResetPayload = {

@@ -8,12 +8,14 @@ import { ResetPasswordCard } from "@/features/auth/components/reset-password-car
 export default function ResetPasswordScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams()
-  const token = searchParams.get("token")
+   const code = searchParams.get("code") ?? searchParams.get("token")
+  const email = searchParams.get("email")
 
   return (
     <AuthPageLayout>
       <ResetPasswordCard
-        token={token}
+        code={code}
+        email={email}
         isLoading={isLoading}
         setIsLoading={setIsLoading}
       />

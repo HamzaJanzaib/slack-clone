@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation } from "convex/react";
 import {
     Dialog,
@@ -38,6 +38,7 @@ export function CreateWorkspaceModal({
     const createWorkspace = useCreateWorkspace();
     const generateUploadUrl = useMutation(api.upload.generateUploadUrl);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const previewUrlRef = useRef<string | null>(null);
 
     const [name, setName] = useState("");
     const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -48,7 +49,17 @@ export function CreateWorkspaceModal({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const revokePreviewUrl = () => {
+        if (previewUrlRef.current) {
+            URL.revokeObjectURL(previewUrlRef.current);
+            previewUrlRef.current = null;
+        }
+    };
+
+    useEffect(() => () => revokePreviewUrl(), []);
+
     const resetForm = () => {
+        revokePreviewUrl();
         setName("");
         setPreviewImage(null);
         setSelectedStorageId(null);
@@ -66,7 +77,9 @@ export function CreateWorkspaceModal({
         if (!file) return;
 
         setIsUploading(true);
+        revokePreviewUrl();
         const localPreview = URL.createObjectURL(file);
+        previewUrlRef.current = localPreview;
         setPreviewImage(localPreview);
 
         try {
@@ -82,6 +95,7 @@ export function CreateWorkspaceModal({
             const { storageId } = await result.json();
             setSelectedStorageId(storageId);
         } catch {
+            revokePreviewUrl();
             setPreviewImage(null);
             alert("Failed to upload image. Please try again.");
         } finally {

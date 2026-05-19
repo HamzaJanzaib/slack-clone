@@ -2,6 +2,7 @@ export type AuthFieldErrors = {
   email?: string
   password?: string
   confirmPassword?: string
+  code?: string
 }
 
 export function validateEmail(email: string): string | undefined {

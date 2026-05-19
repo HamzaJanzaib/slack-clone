@@ -113,6 +113,13 @@ export function ForgotPasswordCard({ isLoading, setIsLoading }: ForgotPasswordCa
         ) : (
           <CardFooter className="flex-col gap-3 pt-2">
             <Button type="button" className="w-full" asChild>
+              <Link
+                href={`/reset-password?email=${encodeURIComponent(email)}`}
+              >
+                Enter reset code
+              </Link>
+            </Button>
+            <Button type="button" variant="soft" className="w-full" asChild>
               <Link href="/">Back to log in</Link>
             </Button>
             <Button

@@ -5,6 +5,11 @@ import {
   createRouteMatcher,
   nextjsMiddlewareRedirect,
 } from "@convex-dev/auth/nextjs/server";
+import {
+  buildAuthUrl,
+  getRedirectFromSearchParams,
+  getRequestReturnPath,
+} from "@/features/auth/lib/redirect";
 
 const isAuthPage = createRouteMatcher([
   "/auth",
@@ -22,7 +27,10 @@ export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
   // Proxy: Allow auth pages but redirect authenticated users
   if (isAuthPage(request)) {
     if (isAuthenticated) {
-      return nextjsMiddlewareRedirect(request, "/");
+      const destination = getRedirectFromSearchParams(
+        request.nextUrl.searchParams,
+      );
+      return nextjsMiddlewareRedirect(request, destination);
     }
     // Pass through auth pages for unauthenticated users
     return NextResponse.next();
@@ -31,7 +39,11 @@ export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
   // Proxy: Protect routes - redirect unauthenticated users
   if (isProtectedRoute(request)) {
     if (!isAuthenticated) {
-      return nextjsMiddlewareRedirect(request, "/auth");
+      const returnPath = getRequestReturnPath(
+        request.nextUrl.pathname,
+        request.nextUrl.search,
+      );
+      return nextjsMiddlewareRedirect(request, buildAuthUrl(returnPath));
     }
     // Pass through protected routes for authenticated users
     return NextResponse.next();

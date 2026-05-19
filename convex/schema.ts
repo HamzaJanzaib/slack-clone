@@ -9,7 +9,10 @@ const schema = defineSchema({
     name: v.string(),
     ownerId: v.id("users"),
     image: v.optional(v.string()),
-  }).index("by_owner", ["ownerId"]),
+    inviteCode: v.string(),
+  })
+    .index("by_owner", ["ownerId"])
+    .index("by_invite_code", ["inviteCode"]),
 
   workspaceMembers: defineTable({
     workspaceId: v.id("workspaces"),

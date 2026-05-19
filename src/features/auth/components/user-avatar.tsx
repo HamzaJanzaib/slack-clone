@@ -20,9 +20,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 import { LogOut, Settings, User } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useParams, usePathname, useRouter } from "next/navigation"
 import { ProfileModal } from "@/features/auth/components/profile-modal"
 import { SettingsModal } from "@/features/auth/components/settings-modal"
+import { WorkspaceMenu } from "@/features/workspaces/components/workspace-menu"
+import { CreateWorkspaceModal } from "@/features/workspaces/components/create-workspace-modal"
+import { useCreateWorkspaceModel } from "@/features/workspaces/store/use-create-workspaces-create-model"
+import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces"
+import { Id } from "../../../../convex/_generated/dataModel"
 
 function getInitials(name?: string | null, email?: string | null): string {
     if (name) {
@@ -43,6 +48,17 @@ export function UserAvatar() {
     const currentUser = useQuery(api.users.currentUser)
     const { signOut } = useAuthActions()
     const router = useRouter()
+    const params = useParams()
+    const pathname = usePathname()
+    const { isOpen: createWorkspaceOpen, setIsOpen: setCreateWorkspaceOpen } =
+        useCreateWorkspaceModel()
+    const { data: workspaces } = useGetWorkspaces()
+    const hasWorkspaces = (workspaces?.length ?? 0) > 0
+    const isJoinFlow = pathname?.startsWith("/join/")
+
+    const currentWorkspaceId = params?.workspaceId as
+        | Id<"workspaces">
+        | undefined
 
     const [profileOpen, setProfileOpen] = useState(false)
     const [settingsOpen, setSettingsOpen] = useState(false)
@@ -85,7 +101,7 @@ export function UserAvatar() {
                         </Avatar>
                     </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-64">
                     <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col gap-1">
                             <p className="text-sm font-medium leading-none">
@@ -99,6 +115,7 @@ export function UserAvatar() {
                         </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    <WorkspaceMenu currentWorkspaceId={currentWorkspaceId} />
                     <DropdownMenuGroup>
                         <DropdownMenuItem
                             id="user-menu-profile"
@@ -132,6 +149,13 @@ export function UserAvatar() {
 
             <ProfileModal open={profileOpen} onOpenChange={setProfileOpen} />
             <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
+            <CreateWorkspaceModal
+                open={createWorkspaceOpen}
+                onOpenChange={setCreateWorkspaceOpen}
+                required={
+                    workspaces !== undefined && !hasWorkspaces && !isJoinFlow
+                }
+            />
         </>
     )
 }

@@ -23,7 +23,9 @@ import {
     validateSignInForm,
 } from "@/features/auth/lib/validation"
 import { signInFlow } from "@/features/auth/types"
+import { getRedirectFromSearchParams } from "@/features/auth/lib/redirect"
 import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
 import { FaGithub, FaGoogle } from "react-icons/fa"
 
 type SignInCardProps = {
@@ -34,6 +36,9 @@ type SignInCardProps = {
 
 export function SignInCard({ setStatus, isLoading, setIsLoading }: SignInCardProps) {
     const { signIn } = useAuthActions()
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const redirectTo = getRedirectFromSearchParams(searchParams)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [errors, setErrors] = useState<AuthFieldErrors>({})
@@ -60,6 +65,7 @@ export function SignInCard({ setStatus, isLoading, setIsLoading }: SignInCardPro
             formData.set("password", password)
             formData.set("flow", "signIn")
             await signIn("password", formData)
+            router.push(redirectTo)
         } catch {
             setErrors({ email: "Invalid email or password" })
         } finally {
@@ -70,7 +76,7 @@ export function SignInCard({ setStatus, isLoading, setIsLoading }: SignInCardPro
     const handleOAuth = async (provider: "google" | "github") => {
         setIsLoading(true)
         try {
-            await signIn(provider, { redirectTo: "/" })
+            await signIn(provider, { redirectTo })
         } finally {
             setIsLoading(false)
         }

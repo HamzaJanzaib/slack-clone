@@ -23,6 +23,8 @@ import {
     validateSignUpForm,
 } from "@/features/auth/lib/validation"
 import { signInFlow } from "@/features/auth/types"
+import { getRedirectFromSearchParams } from "@/features/auth/lib/redirect"
+import { useRouter, useSearchParams } from "next/navigation"
 import { FaGithub, FaGoogle } from "react-icons/fa"
 
 type SignUpCardProps = {
@@ -33,6 +35,9 @@ type SignUpCardProps = {
 
 const SignUpCard = ({ setStatus, isLoading, setIsLoading }: SignUpCardProps) => {
     const { signIn } = useAuthActions()
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const redirectTo = getRedirectFromSearchParams(searchParams)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -60,6 +65,7 @@ const SignUpCard = ({ setStatus, isLoading, setIsLoading }: SignUpCardProps) => 
             formData.set("password", password)
             formData.set("flow", "signUp")
             await signIn("password", formData)
+            router.push(redirectTo)
         } catch {
             setErrors({ email: "Could not create account. Try a different email." })
         } finally {
@@ -70,7 +76,7 @@ const SignUpCard = ({ setStatus, isLoading, setIsLoading }: SignUpCardProps) => 
     const handleOAuth = async (provider: "google" | "github") => {
         setIsLoading(true)
         try {
-            await signIn(provider, { redirectTo: "/" })
+            await signIn(provider, { redirectTo })
         } finally {
             setIsLoading(false)
         }

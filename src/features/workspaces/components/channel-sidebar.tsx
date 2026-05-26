@@ -22,6 +22,7 @@ import {
 } from "@/features/workspaces/context/workspace-ui-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Id } from "../../../../convex/_generated/dataModel";
+import { BotLogo } from "@/features/workspaces/components/bot-logo";
 import { channelTabId } from "@/features/workspaces/lib/workspace-tab";
 import { cn } from "@/lib/utils";
 
@@ -33,33 +34,6 @@ const channels = [
 
 const dmUsers = [{ id: "hbahi024", name: "hbahi024", initials: "hb" }] as const;
 
-function SlackbotIcon({ className }: { className?: string }) {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            aria-hidden
-            className={cn("size-5 shrink-0", className)}
-        >
-            <path
-                fill="#E01E5A"
-                d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313z"
-            />
-            <path
-                fill="#36C5F0"
-                d="M8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.527 2.527 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312z"
-            />
-            <path
-                fill="#2EB67D"
-                d="M18.956 8.834a2.528 2.528 0 0 1 2.52-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.524 2.521h-2.52V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.523-2.521V2.522A2.528 2.528 0 0 1 17.688 0a2.528 2.528 0 0 1 2.523 2.522v6.312z"
-            />
-            <path
-                fill="#ECB22E"
-                d="M15.165 18.956a2.528 2.528 0 0 1 2.523 2.52A2.528 2.528 0 0 1 15.165 24a2.528 2.528 0 0 1-2.52-2.524v-2.52h2.52zM15.165 17.688a2.528 2.528 0 0 1-2.52-2.523 2.527 2.527 0 0 1 2.52-2.523h6.313A2.528 2.528 0 0 1 24 17.688a2.528 2.528 0 0 1-2.522 2.523h-6.313z"
-            />
-        </svg>
-    );
-}
-
 function SectionHeader({
     title,
     icon,
@@ -68,7 +42,7 @@ function SectionHeader({
     icon: React.ReactNode;
 }) {
     return (
-        <div className="flex items-center justify-center gap-1.5 px-4 py-1 text-[16px] font-semibold text-sidebar-foreground/70 -rotate-1">
+        <div className="mx-2 flex items-center gap-1.5 px-2 py-1 text-[13px] font-semibold text-sidebar-foreground/70">
             {icon}
             <span>{title}</span>
         </div>
@@ -325,7 +299,7 @@ export function ChannelSidebar() {
                         />
                         <SidebarNavItem
                             label="Slackbot"
-                            icon={<SlackbotIcon />}
+                            icon={<BotLogo size="icon" className="rounded-sm" />}
                             badge={1}
                             className="pl-4 font-medium"
                         />

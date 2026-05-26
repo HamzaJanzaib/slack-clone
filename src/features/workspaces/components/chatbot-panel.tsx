@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { BotLogo } from "@/features/workspaces/components/bot-logo";
 import { useWorkspaceUi } from "@/features/workspaces/context/workspace-ui-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -29,7 +30,12 @@ export function ChatbotPanel() {
     return (
         <aside className="flex h-full min-h-0 w-full flex-col border-l border-border bg-card">
             <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
-                <h2 className="text-sm font-bold">Workspace Assistant</h2>
+                <div className="flex min-w-0 items-center gap-2">
+                    <BotLogo size="sm" className="rounded-lg" />
+                    <h2 className="truncate text-sm font-bold">
+                        Workspace Assistant
+                    </h2>
+                </div>
                 <button
                     type="button"
                     aria-label="Close assistant"
@@ -42,9 +48,7 @@ export function ChatbotPanel() {
 
             <div className="scrollbar-hide min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-6">
                 <div className="flex flex-col items-center text-center">
-                    <div className="flex size-16 items-center justify-center rounded-2xl bg-linear-to-br from-violet-500 via-fuchsia-500 to-amber-400 text-2xl font-bold text-white shadow-lg">
-                        AI
-                    </div>
+                    <BotLogo size="lg" className="rounded-2xl shadow-lg" />
                     <h3 className="mt-4 text-lg font-bold">
                         Hi, I&apos;m your assistant!
                     </h3>

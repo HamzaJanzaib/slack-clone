@@ -9,8 +9,8 @@ import {
     Hash,
     Menu,
     Search,
-    Sparkles,
 } from "lucide-react";
+import { BotLogo } from "@/features/workspaces/components/bot-logo";
 import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
 import { useWorkspaceUi } from "@/features/workspaces/context/workspace-ui-context";
 import { Button } from "@/components/ui/button";
@@ -115,7 +115,7 @@ export default function ToolBar({ onOpenSidebar }: ToolBarProps) {
                             "bg-sidebar-accent text-sidebar-foreground",
                     )}
                 >
-                    <Sparkles className="size-4" />
+                    <BotLogo size="xs" className="rounded-md" />
                 </ToolbarIconButton>
                 <ToolbarIconButton label="Help">
                     <CircleHelp />

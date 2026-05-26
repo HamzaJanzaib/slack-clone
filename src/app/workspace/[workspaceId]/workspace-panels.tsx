@@ -50,23 +50,32 @@ export function WorkspacePanels({ children }: WorkspacePanelsProps) {
             orientation="horizontal"
             className="min-h-0 min-w-0 flex-1 overflow-hidden"
             id={`workspace-panels-${workspaceId}`}
+            defaultLayout={
+                chatbotOpen
+                    ? { "channel-sidebar": 22, "main-content": 53, chatbot: 25 }
+                    : { "channel-sidebar": 22, "main-content": 78 }
+            }
+            resizeTargetMinimumSize={{ coarse: 28, fine: 12 }}
         >
             <ResizablePanel
                 id="channel-sidebar"
-                defaultSize={22}
-                minSize={16}
-                maxSize={32}
+                defaultSize="22%"
+                minSize="15%"
+                maxSize="35%"
                 className="min-w-0 max-sm:hidden"
             >
                 <ChannelSidebar />
             </ResizablePanel>
 
-            <ResizableHandle className="bg-border max-sm:hidden" withHandle />
+            <ResizableHandle
+                withHandle
+                className="z-10 w-px bg-border transition-colors hover:bg-primary/30 max-sm:hidden"
+            />
 
             <ResizablePanel
                 id="main-content"
-                defaultSize={78}
-                minSize={35}
+                defaultSize="78%"
+                minSize="30%"
                 className="min-w-0"
             >
                 <div className="scrollbar-hide flex h-full min-h-0 flex-col overflow-y-auto overflow-x-hidden bg-background">
@@ -80,12 +89,15 @@ export function WorkspacePanels({ children }: WorkspacePanelsProps) {
 
             {chatbotOpen && (
                 <>
-                    <ResizableHandle withHandle className="bg-border" />
+                    <ResizableHandle
+                        withHandle
+                        className="z-10 w-px bg-border transition-colors hover:bg-primary/30"
+                    />
                     <ResizablePanel
                         id="chatbot"
-                        defaultSize={25}
-                        minSize={18}
-                        maxSize={40}
+                        defaultSize="25%"
+                        minSize="18%"
+                        maxSize="40%"
                         className="min-w-0"
                     >
                         <ChatbotPanel />

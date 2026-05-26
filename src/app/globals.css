@@ -166,6 +166,16 @@
   box-shadow: var(--shopify-button-shadow-active);
 }
 
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -175,5 +185,10 @@
   }
   html {
     @apply font-sans;
+  }
+  html:has(.workspace-app),
+  html:has(.workspace-app) body {
+    overflow: hidden;
+    height: 100%;
   }
 }

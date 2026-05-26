@@ -50,7 +50,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
     }, [sidebarOpen, isMobile, closeSidebar]);
 
     return (
-        <div className="flex h-dvh overflow-hidden bg-background">
+        <div className="workspace-app flex h-dvh overflow-hidden bg-background">
             {sidebarOpen && isMobile && (
                 <button
                     type="button"
@@ -65,9 +65,11 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                 onMobileClose={closeSidebar}
             />
 
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
                 <ToolBar onOpenSidebar={openSidebar} />
-                {children}
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                    {children}
+                </div>
             </div>
         </div>
     );

@@ -6,10 +6,13 @@ import {
     ArrowRight,
     CircleHelp,
     Clock,
+    Hash,
     Menu,
     Search,
+    Sparkles,
 } from "lucide-react";
 import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
+import { useWorkspaceUi } from "@/features/workspaces/context/workspace-ui-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -47,6 +50,8 @@ export default function ToolBar({ onOpenSidebar }: ToolBarProps) {
     const params = useParams();
     const workspaceId = params?.workspaceId as Id<"workspaces"> | undefined;
     const { data: workspace, isLoading } = useGetWorkspace(workspaceId);
+    const { chatbotOpen, toggleChatbot, setChannelSidebarOpen } =
+        useWorkspaceUi();
 
     const workspaceName = workspace?.name ?? "workspace";
     const searchPlaceholder = isLoading
@@ -62,6 +67,13 @@ export default function ToolBar({ onOpenSidebar }: ToolBarProps) {
                     onClick={onOpenSidebar}
                 >
                     <Menu />
+                </ToolbarIconButton>
+                <ToolbarIconButton
+                    label="Open channels"
+                    className="sm:hidden"
+                    onClick={() => setChannelSidebarOpen(true)}
+                >
+                    <Hash />
                 </ToolbarIconButton>
                 <div className="hidden items-center gap-0.5 sm:flex">
                     <ToolbarIconButton label="Go back">
@@ -94,7 +106,17 @@ export default function ToolBar({ onOpenSidebar }: ToolBarProps) {
                 </div>
             </div>
 
-            <div className="flex shrink-0 items-center">
+            <div className="flex shrink-0 items-center gap-0.5">
+                <ToolbarIconButton
+                    label={chatbotOpen ? "Close assistant" : "Open assistant"}
+                    onClick={toggleChatbot}
+                    className={cn(
+                        chatbotOpen &&
+                            "bg-sidebar-accent text-sidebar-foreground",
+                    )}
+                >
+                    <Sparkles className="size-4" />
+                </ToolbarIconButton>
                 <ToolbarIconButton label="Help">
                     <CircleHelp />
                 </ToolbarIconButton>

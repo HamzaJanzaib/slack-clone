@@ -142,7 +142,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                     <WorkspaceSwitcher />
                 </div>
 
-                <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto px-2">
+                <nav className="scrollbar-hide mt-4 flex flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden px-2">
                     {navItems.map((item) => (
                         <SidebarNavButton
                             key={item.id}

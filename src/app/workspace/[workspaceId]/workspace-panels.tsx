@@ -1,0 +1,98 @@
+"use client";
+
+import { useParams } from "next/navigation";
+import {
+    ResizableHandle,
+    ResizablePanel,
+    ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { ChannelSidebar } from "@/features/workspaces/components/channel-sidebar";
+import { ChatbotPanel } from "@/features/workspaces/components/chatbot-panel";
+import { WorkspaceSetupView } from "@/features/workspaces/components/workspace-setup-view";
+import { useWorkspaceUi } from "@/features/workspaces/context/workspace-ui-context";
+import { Id } from "../../../../convex/_generated/dataModel";
+import { cn } from "@/lib/utils";
+
+type WorkspacePanelsProps = {
+    children: React.ReactNode;
+};
+
+export function WorkspacePanels({ children }: WorkspacePanelsProps) {
+    const params = useParams();
+    const workspaceId = params?.workspaceId as Id<"workspaces"> | undefined;
+    const { chatbotOpen, mainView, channelSidebarOpen, setChannelSidebarOpen } =
+        useWorkspaceUi();
+
+    if (!workspaceId) {
+        return <div className="min-h-0 flex-1">{children}</div>;
+    }
+
+    return (
+        <>
+        {channelSidebarOpen && (
+            <button
+                type="button"
+                aria-label="Close channels"
+                className="fixed inset-0 z-40 bg-black/50 sm:hidden"
+                onClick={() => setChannelSidebarOpen(false)}
+            />
+        )}
+        <aside
+            className={cn(
+                "fixed inset-y-0 left-[68px] z-50 w-[min(100%,280px)] border-r border-sidebar-border bg-sidebar shadow-xl transition-transform duration-200 sm:hidden",
+                channelSidebarOpen ? "translate-x-0" : "-translate-x-full",
+            )}
+        >
+            <ChannelSidebar />
+        </aside>
+
+        <ResizablePanelGroup
+            orientation="horizontal"
+            className="min-h-0 min-w-0 flex-1 overflow-hidden"
+            id={`workspace-panels-${workspaceId}`}
+        >
+            <ResizablePanel
+                id="channel-sidebar"
+                defaultSize={22}
+                minSize={16}
+                maxSize={32}
+                className="min-w-0 max-sm:hidden"
+            >
+                <ChannelSidebar />
+            </ResizablePanel>
+
+            <ResizableHandle className="bg-border max-sm:hidden" withHandle />
+
+            <ResizablePanel
+                id="main-content"
+                defaultSize={78}
+                minSize={35}
+                className="min-w-0"
+            >
+                <div className="scrollbar-hide flex h-full min-h-0 flex-col overflow-y-auto overflow-x-hidden bg-background">
+                    {mainView === "setup" ? (
+                        <WorkspaceSetupView />
+                    ) : (
+                        children
+                    )}
+                </div>
+            </ResizablePanel>
+
+            {chatbotOpen && (
+                <>
+                    <ResizableHandle withHandle className="bg-border" />
+                    <ResizablePanel
+                        id="chatbot"
+                        defaultSize={25}
+                        minSize={18}
+                        maxSize={40}
+                        className="min-w-0"
+                    >
+                        <ChatbotPanel />
+                    </ResizablePanel>
+                </>
+            )}
+        </ResizablePanelGroup>
+        </>
+    );
+}

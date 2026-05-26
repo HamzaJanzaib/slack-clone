@@ -1,9 +1,9 @@
-import { WorkspaceShell } from "@/app/workspace/[workspaceId]/workspace-shell";
+import { WorkspaceLayoutClient } from "@/app/workspace/[workspaceId]/workspace-layout-client";
 
 export default function WorkspaceLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    return <WorkspaceShell>{children}</WorkspaceShell>;
+    return <WorkspaceLayoutClient>{children}</WorkspaceLayoutClient>;
 }

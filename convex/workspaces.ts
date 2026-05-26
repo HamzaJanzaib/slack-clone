@@ -104,7 +104,21 @@ export const getWorkspace = query({
       return null;
     }
 
-    return await ctx.db.get(args.workspaceId);
+    const workspace = await ctx.db.get(args.workspaceId);
+    if (!workspace) {
+      return null;
+    }
+
+    const members = await ctx.db
+      .query("workspaceMembers")
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+      .collect();
+
+    return {
+      ...workspace,
+      memberCount: members.length,
+      role: membership.role,
+    };
   },
 });
 

@@ -2,7 +2,6 @@
 
 import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { UserAvatar } from "@/features/auth/components/user-avatar";
 import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,36 +31,28 @@ export default function WorkspacePage({ params }: WorkspacePageProps) {
     }, [isLoading, workspace, router]);
 
     return (
-        <div className="flex min-h-screen flex-col">
-            <header className="flex items-center justify-between border-b border-border px-4 py-3">
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4 sm:p-6">
+            <div className="mx-auto flex w-full max-w-md flex-1 items-center justify-center py-4 sm:py-8">
                 {isLoading ? (
-                    <Skeleton className="h-6 w-40" />
-                ) : (
-                    <h1 className="text-lg font-semibold tracking-tight">
-                        {workspace?.name ?? "Workspace"}
-                    </h1>
-                )}
-                <UserAvatar />
-            </header>
-            <main className="flex flex-1 items-center justify-center p-4">
-                {isLoading ? (
-                    <Skeleton className="h-40 w-full max-w-md" />
+                    <Skeleton className="h-48 w-full sm:h-40" />
                 ) : workspace ? (
-                    <Card className="w-full max-w-md shadow-shopify-card">
-                        <CardHeader>
-                            <CardTitle>{workspace.name}</CardTitle>
+                    <Card className="w-full shadow-shopify-card">
+                        <CardHeader className="space-y-1 px-4 sm:px-6">
+                            <CardTitle className="text-lg sm:text-xl">
+                                {workspace.name}
+                            </CardTitle>
                             <CardDescription>
                                 Invite teammates with the link below.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="px-4 pb-6 sm:px-6">
                             <WorkspaceSharePanel
                                 inviteCode={workspace.inviteCode}
                             />
                         </CardContent>
                     </Card>
                 ) : null}
-            </main>
-        </div>
+            </div>
+        </main>
     );
 }

@@ -58,7 +58,7 @@ export function WorkspaceSetupView() {
     const workspaceId = params?.workspaceId as Id<"workspaces"> | undefined;
     const { data: workspace, isLoading } = useGetWorkspace(workspaceId);
     const currentUser = useQuery(api.users.currentUser);
-    const { setMainView } = useWorkspaceUi();
+    const { setTab } = useWorkspaceUi();
 
     const displayName =
         currentUser?.name?.split(" ")[0] ||
@@ -67,7 +67,7 @@ export function WorkspaceSetupView() {
 
     const finishSetup = () => {
         if (workspaceId) markWorkspaceSetupSeen(workspaceId);
-        setMainView("default");
+        setTab("huddles");
     };
 
     if (isLoading) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useParams } from "next/navigation";
 import { WorkspaceUiProvider } from "@/features/workspaces/context/workspace-ui-context";
 import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
@@ -21,13 +22,15 @@ export function WorkspaceLayoutClient({
     }
 
     return (
-        <WorkspaceUiProvider
-            workspaceId={workspaceId}
-            memberCount={workspace?.memberCount}
-        >
-            <WorkspaceShell>
-                <WorkspacePanels>{children}</WorkspacePanels>
-            </WorkspaceShell>
-        </WorkspaceUiProvider>
+        <Suspense fallback={<WorkspaceShell>{children}</WorkspaceShell>}>
+            <WorkspaceUiProvider
+                workspaceId={workspaceId}
+                memberCount={workspace?.memberCount}
+            >
+                <WorkspaceShell>
+                    <WorkspacePanels>{children}</WorkspacePanels>
+                </WorkspaceShell>
+            </WorkspaceUiProvider>
+        </Suspense>
     );
 }

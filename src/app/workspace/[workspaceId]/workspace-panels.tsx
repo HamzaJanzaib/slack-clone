@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/resizable";
 import { ChannelSidebar } from "@/features/workspaces/components/channel-sidebar";
 import { ChatbotPanel } from "@/features/workspaces/components/chatbot-panel";
+import { HelpPanel } from "@/features/workspaces/components/help-panel";
 import { WorkspaceSetupView } from "@/features/workspaces/components/workspace-setup-view";
 import { useWorkspaceUi } from "@/features/workspaces/context/workspace-ui-context";
 import { Id } from "../../../../convex/_generated/dataModel";
@@ -20,8 +21,15 @@ type WorkspacePanelsProps = {
 export function WorkspacePanels({ children }: WorkspacePanelsProps) {
     const params = useParams();
     const workspaceId = params?.workspaceId as Id<"workspaces"> | undefined;
-    const { chatbotOpen, mainView, channelSidebarOpen, setChannelSidebarOpen } =
-        useWorkspaceUi();
+    const {
+        chatbotOpen,
+        helpOpen,
+        mainView,
+        channelSidebarOpen,
+        setChannelSidebarOpen,
+    } = useWorkspaceUi();
+
+    const rightPanelOpen = chatbotOpen || helpOpen;
 
     if (!workspaceId) {
         return <div className="min-h-0 flex-1">{children}</div>;
@@ -51,8 +59,12 @@ export function WorkspacePanels({ children }: WorkspacePanelsProps) {
             className="min-h-0 min-w-0 flex-1 overflow-hidden"
             id={`workspace-panels-${workspaceId}`}
             defaultLayout={
-                chatbotOpen
-                    ? { "channel-sidebar": 22, "main-content": 53, chatbot: 25 }
+                rightPanelOpen
+                    ? {
+                          "channel-sidebar": 22,
+                          "main-content": 53,
+                          "right-panel": 25,
+                      }
                     : { "channel-sidebar": 22, "main-content": 78 }
             }
             resizeTargetMinimumSize={{ coarse: 28, fine: 12 }}
@@ -87,20 +99,20 @@ export function WorkspacePanels({ children }: WorkspacePanelsProps) {
                 </div>
             </ResizablePanel>
 
-            {chatbotOpen && (
+            {rightPanelOpen && (
                 <>
                     <ResizableHandle
                         withHandle
                         className="z-10 w-px bg-border transition-colors hover:bg-primary/30"
                     />
                     <ResizablePanel
-                        id="chatbot"
+                        id="right-panel"
                         defaultSize="25%"
                         minSize="18%"
                         maxSize="40%"
                         className="min-w-0"
                     >
-                        <ChatbotPanel />
+                        {helpOpen ? <HelpPanel /> : <ChatbotPanel />}
                     </ResizablePanel>
                 </>
             )}

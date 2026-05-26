@@ -26,6 +26,9 @@ type WorkspaceUiContextValue = {
     chatbotOpen: boolean;
     toggleChatbot: () => void;
     setChatbotOpen: (open: boolean) => void;
+    helpOpen: boolean;
+    toggleHelp: () => void;
+    setHelpOpen: (open: boolean) => void;
     channelSidebarOpen: boolean;
     setChannelSidebarOpen: (open: boolean) => void;
     tab: WorkspaceTab;
@@ -56,6 +59,7 @@ export function WorkspaceUiProvider({
     const searchParams = useSearchParams();
 
     const [chatbotOpen, setChatbotOpen] = useState(false);
+    const [helpOpen, setHelpOpen] = useState(false);
     const [channelSidebarOpen, setChannelSidebarOpen] = useState(false);
 
     const tabParam = searchParams.get(WORKSPACE_TAB_PARAM);
@@ -104,15 +108,40 @@ export function WorkspaceUiProvider({
         }
     }, [workspaceId, memberCount, tabParam, setTab]);
 
+    const setChatbotOpenExclusive = useCallback((open: boolean) => {
+        setChatbotOpen(open);
+        if (open) setHelpOpen(false);
+    }, []);
+
+    const setHelpOpenExclusive = useCallback((open: boolean) => {
+        setHelpOpen(open);
+        if (open) setChatbotOpen(false);
+    }, []);
+
     const toggleChatbot = useCallback(() => {
-        setChatbotOpen((open) => !open);
+        setChatbotOpen((open) => {
+            const next = !open;
+            if (next) setHelpOpen(false);
+            return next;
+        });
+    }, []);
+
+    const toggleHelp = useCallback(() => {
+        setHelpOpen((open) => {
+            const next = !open;
+            if (next) setChatbotOpen(false);
+            return next;
+        });
     }, []);
 
     const value = useMemo(
         () => ({
             chatbotOpen,
             toggleChatbot,
-            setChatbotOpen,
+            setChatbotOpen: setChatbotOpenExclusive,
+            helpOpen,
+            toggleHelp,
+            setHelpOpen: setHelpOpenExclusive,
             channelSidebarOpen,
             setChannelSidebarOpen,
             tab,
@@ -125,6 +154,10 @@ export function WorkspaceUiProvider({
         [
             chatbotOpen,
             toggleChatbot,
+            setChatbotOpenExclusive,
+            helpOpen,
+            toggleHelp,
+            setHelpOpenExclusive,
             channelSidebarOpen,
             tab,
             setTab,

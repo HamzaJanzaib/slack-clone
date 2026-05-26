@@ -50,8 +50,13 @@ export default function ToolBar({ onOpenSidebar }: ToolBarProps) {
     const params = useParams();
     const workspaceId = params?.workspaceId as Id<"workspaces"> | undefined;
     const { data: workspace, isLoading } = useGetWorkspace(workspaceId);
-    const { chatbotOpen, toggleChatbot, setChannelSidebarOpen } =
-        useWorkspaceUi();
+    const {
+        chatbotOpen,
+        helpOpen,
+        toggleChatbot,
+        toggleHelp,
+        setChannelSidebarOpen,
+    } = useWorkspaceUi();
 
     const workspaceName = workspace?.name ?? "workspace";
     const searchPlaceholder = isLoading
@@ -117,8 +122,15 @@ export default function ToolBar({ onOpenSidebar }: ToolBarProps) {
                 >
                     <BotLogo size="xs" className="rounded-md" />
                 </ToolbarIconButton>
-                <ToolbarIconButton label="Help">
-                    <CircleHelp />
+                <ToolbarIconButton
+                    label={helpOpen ? "Close help" : "Open help"}
+                    onClick={toggleHelp}
+                    className={cn(
+                        helpOpen &&
+                            "bg-sidebar-accent text-sidebar-foreground",
+                    )}
+                >
+                    <CircleHelp className="size-4" />
                 </ToolbarIconButton>
             </div>
         </header>

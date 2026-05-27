@@ -3,22 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Sidebar from "@/app/workspace/[workspaceId]/sidebar";
 import ToolBar from "@/app/workspace/[workspaceId]/ToolBar";
-
-const MD_BREAKPOINT = 768;
-
-function useIsMobile() {
-    const [isMobile, setIsMobile] = useState(false);
-
-    useEffect(() => {
-        const media = window.matchMedia(`(max-width: ${MD_BREAKPOINT - 1}px)`);
-        const update = () => setIsMobile(media.matches);
-        update();
-        media.addEventListener("change", update);
-        return () => media.removeEventListener("change", update);
-    }, []);
-
-    return isMobile;
-}
+import { useBodyScrollLock, useIsMobile } from "@/hooks/use-mobile";
 
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,6 +18,8 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         }
     }, [isMobile]);
 
+    useBodyScrollLock(isMobile && sidebarOpen);
+
     useEffect(() => {
         if (!sidebarOpen || !isMobile) return;
 
@@ -40,17 +27,12 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
             if (event.key === "Escape") closeSidebar();
         };
 
-        document.body.style.overflow = "hidden";
         window.addEventListener("keydown", onKeyDown);
-
-        return () => {
-            document.body.style.overflow = "";
-            window.removeEventListener("keydown", onKeyDown);
-        };
+        return () => window.removeEventListener("keydown", onKeyDown);
     }, [sidebarOpen, isMobile, closeSidebar]);
 
     return (
-        <div className="workspace-app flex h-dvh overflow-hidden bg-background">
+        <div className="workspace-app flex h-dvh overflow-hidden bg-background pt-[env(safe-area-inset-top)]">
             {sidebarOpen && isMobile && (
                 <button
                     type="button"

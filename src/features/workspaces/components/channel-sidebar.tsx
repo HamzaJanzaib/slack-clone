@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 import {
     ChevronDown,
     Compass,
@@ -15,8 +16,9 @@ import {
     Settings,
     SquarePen,
 } from "lucide-react";
-import { api } from "../../../../convex/_generated/api";
 import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
+import { InvitePeopleModal } from "@/features/handle/components/invite-people-modal";
+import { CreateChannelModal } from "@/features/handle/components/create-channel-modal";
 import {
     markWorkspaceSetupSeen,
     useWorkspaceUi,
@@ -29,14 +31,6 @@ import { Id } from "../../../../convex/_generated/dataModel";
 import { BotLogo } from "@/features/workspaces/components/bot-logo";
 import { channelTabId } from "@/features/workspaces/lib/workspace-tab";
 import { cn } from "@/lib/utils";
-
-const channels = [
-    { id: "all", name: "all-testing" },
-    { id: "new", name: "new-channel" },
-    { id: "social", name: "social" },
-] as const;
-
-const dmUsers = [{ id: "hbahi024", name: "hbahi024", initials: "hb" }] as const;
 
 function SectionHeader({
     title,
@@ -134,6 +128,81 @@ export function ChannelSidebar() {
     const [settingsMode, setSettingsMode] = useState<"settings" | "edit">(
         "settings",
     );
+    const [inviteOpen, setInviteOpen] = useState(false);
+    const [createChannelOpen, setCreateChannelOpen] = useState(false);
+    const seedChannels = useMutation(api.channels.seedDefaultChannels);
+
+    if (
+        typeof window !== "undefined" &&
+        !(window as { __dbgListChannelsInitLogged?: boolean }).__dbgListChannelsInitLogged
+    ) {
+        (window as { __dbgListChannelsInitLogged?: boolean }).__dbgListChannelsInitLogged = true;
+        // #region agent log
+        fetch("http://127.0.0.1:7301/ingest/b333104d-e9fd-48aa-90ec-9ab74aad7a08", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Debug-Session-Id": "334b13",
+            },
+            body: JSON.stringify({
+                sessionId: "334b13",
+                runId: "pre-fix",
+                hypothesisId: "H1",
+                location: "channel-sidebar.tsx",
+                message: "About to call listChannels query",
+                data: {
+                    workspaceId: workspaceId ?? null,
+                    hasListChannelsRef: Boolean(api.channels.listChannels),
+                },
+                timestamp: Date.now(),
+            }),
+        }).catch(() => {});
+        // #endregion
+    }
+
+    const channels = useQuery(
+        api.channels.listChannels,
+        workspaceId ? { workspaceId } : "skip",
+    );
+
+    if (
+        typeof window !== "undefined" &&
+        channels !== undefined &&
+        !(window as { __dbgListChannelsResolvedLogged?: boolean }).__dbgListChannelsResolvedLogged
+    ) {
+        (window as { __dbgListChannelsResolvedLogged?: boolean }).__dbgListChannelsResolvedLogged = true;
+        // #region agent log
+        fetch("http://127.0.0.1:7301/ingest/b333104d-e9fd-48aa-90ec-9ab74aad7a08", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Debug-Session-Id": "334b13",
+            },
+            body: JSON.stringify({
+                sessionId: "334b13",
+                runId: "pre-fix",
+                hypothesisId: "H3",
+                location: "channel-sidebar.tsx",
+                message: "listChannels query produced a value",
+                data: {
+                    count: channels.length,
+                },
+                timestamp: Date.now(),
+            }),
+        }).catch(() => {});
+        // #endregion
+    }
+
+    useEffect(() => {
+        if (!workspaceId || channels === undefined) return;
+        if (channels.length === 0) {
+            void seedChannels({ workspaceId });
+        }
+    }, [workspaceId, channels, seedChannels]);
+    const members = useQuery(
+        api.channels.listWorkspaceMembers,
+        workspaceId ? { workspaceId } : "skip",
+    );
 
     const closeMobileSidebar = () => setChannelSidebarOpen(false);
     const isAdmin = workspace?.role === "admin";
@@ -155,6 +224,9 @@ export function ChannelSidebar() {
         setTab(channelTabId(channelId));
         closeMobileSidebar();
     };
+
+    const otherMembers =
+        members?.filter((m) => !m.isSelf) ?? [];
 
     const startInlineRename = () => {
         if (!isAdmin || !workspace) return;
@@ -311,22 +383,29 @@ export function ChannelSidebar() {
                             }
                         />
                         <div className="mt-0.5 space-y-px">
-                            {channels.map((channel) => (
+                            {(channels ?? []).map((channel) => (
                                 <SidebarNavItem
-                                    key={channel.id}
-                                    label={`# ${channel.name}`}
-                                    isActive={tab === channelTabId(channel.id)}
-                                    onClick={() => handleChannelClick(channel.id)}
+                                    key={channel._id}
+                                    label={channel.name}
+                                    isActive={
+                                        tab === channelTabId(channel._id)
+                                    }
+                                    onClick={() =>
+                                        handleChannelClick(channel._id)
+                                    }
                                     className="pl-4"
                                 />
                             ))}
-                            <SidebarNavItem
-                                label="Add channels"
-                                icon={
-                                    <Plus className="size-[18px] shrink-0 opacity-70" />
-                                }
-                                className="text-sidebar-foreground/70"
-                            />
+                            {isAdmin && (
+                                <SidebarNavItem
+                                    label="Add channels"
+                                    icon={
+                                        <Plus className="size-[18px] shrink-0 opacity-70" />
+                                    }
+                                    className="text-sidebar-foreground/70"
+                                    onClick={() => setCreateChannelOpen(true)}
+                                />
+                            )}
                         </div>
                     </div>
 
@@ -338,19 +417,25 @@ export function ChannelSidebar() {
                             }
                         />
                         <div className="mt-0.5 space-y-px">
-                            {dmUsers.map((user) => (
-                                <SidebarNavItem
-                                    key={user.id}
-                                    label={user.name}
-                                    icon={
-                                        <DmAvatar
-                                            initials={user.initials}
-                                            variant="default"
-                                        />
-                                    }
-                                    className="pl-4"
-                                />
-                            ))}
+                            {otherMembers.map((user) => {
+                                const name =
+                                    user.name ??
+                                    user.email?.split("@")[0] ??
+                                    "Member";
+                                return (
+                                    <SidebarNavItem
+                                        key={user._id}
+                                        label={name}
+                                        icon={
+                                            <DmAvatar
+                                                initials={name}
+                                                variant="default"
+                                            />
+                                        }
+                                        className="pl-4"
+                                    />
+                                );
+                            })}
                             <SidebarNavItem
                                 label={userName}
                                 suffix="you"
@@ -368,6 +453,7 @@ export function ChannelSidebar() {
                                     <Plus className="size-[18px] shrink-0 opacity-70" />
                                 }
                                 className="text-sidebar-foreground/70"
+                                onClick={() => setInviteOpen(true)}
                             />
                         </div>
                     </div>
@@ -390,15 +476,27 @@ export function ChannelSidebar() {
             </div>
 
             {!isLoading && workspace && workspaceId && (
-                <WorkspaceSettingsModal
-                    open={settingsModalOpen}
-                    onOpenChange={setSettingsModalOpen}
-                    workspaceId={workspaceId}
-                    workspaceName={workspace.name}
-                    inviteCode={workspace.inviteCode}
-                    isAdmin={isAdmin}
-                    mode={settingsMode}
-                />
+                <>
+                    <WorkspaceSettingsModal
+                        open={settingsModalOpen}
+                        onOpenChange={setSettingsModalOpen}
+                        workspaceId={workspaceId}
+                        workspaceName={workspace.name}
+                        inviteCode={workspace.inviteCode}
+                        isAdmin={isAdmin}
+                        mode={settingsMode}
+                    />
+                    <InvitePeopleModal
+                        open={inviteOpen}
+                        onOpenChange={setInviteOpen}
+                        workspaceId={workspaceId}
+                    />
+                    <CreateChannelModal
+                        open={createChannelOpen}
+                        onOpenChange={setCreateChannelOpen}
+                        workspaceId={workspaceId}
+                    />
+                </>
             )}
         </aside>
     );

@@ -6,6 +6,7 @@ import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { JotaiProvider } from "@/components/providers/jotai-provider";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -92,9 +93,11 @@ export default function RootLayout({
         <body className="min-h-full flex flex-col">
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <ConvexClientProvider>
-              <TooltipProvider delayDuration={300}>
-                {children}
-              </TooltipProvider>
+              <JotaiProvider>
+                <TooltipProvider delayDuration={300}>
+                  {children}
+                </TooltipProvider>
+              </JotaiProvider>
             </ConvexClientProvider>
           </ThemeProvider>
         </body>

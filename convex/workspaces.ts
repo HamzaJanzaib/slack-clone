@@ -181,6 +181,27 @@ export const createWorkspace = mutation({
       role: "admin",
     });
 
+    const defaultChannels = [
+      { name: "all-testing", description: "Share announcements and updates." },
+      { name: "new-channel", description: "This channel is for everything #new-channel." },
+      { name: "social", description: "Other channels are for work. This one's just for fun." },
+    ];
+
+    for (const ch of defaultChannels) {
+      const channelId = await ctx.db.insert("channels", {
+        workspaceId,
+        name: ch.name,
+        description: ch.description,
+        createdBy: userId,
+        isPrivate: false,
+      });
+      await ctx.db.insert("channelMembers", {
+        channelId,
+        userId,
+        workspaceId,
+      });
+    }
+
     return workspaceId;
   },
 });

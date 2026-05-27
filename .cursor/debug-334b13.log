@@ -1,0 +1,6 @@
+{"sessionId":"334b13","runId":"pre-fix","hypothesisId":"H2","location":"ConvexClientProvider.tsx","message":"Convex client provider mounted","data":{"convexUrl":"https://hushed-emu-91.convex.cloud"},"timestamp":1779909653389}
+{"sessionId":"334b13","runId":"pre-fix","hypothesisId":"H1","location":"channel-sidebar.tsx","message":"About to call listChannels query","data":{"workspaceId":"k5764fyf5zw3cjns9gy3rhp2yd87efcf","hasListChannelsRef":true},"timestamp":1779909673108}
+{"sessionId":"334b13","runId":"pre-fix","hypothesisId":"H3","location":"channel-sidebar.tsx","message":"listChannels query produced a value","data":{"count":3},"timestamp":1779909673109}
+{"sessionId":"334b13","runId":"pre-fix","hypothesisId":"H2","location":"ConvexClientProvider.tsx","message":"Convex client provider mounted","data":{"convexUrl":"https://hushed-emu-91.convex.cloud"},"timestamp":1779909683248}
+{"sessionId":"334b13","runId":"pre-fix","hypothesisId":"H1","location":"channel-sidebar.tsx","message":"About to call listChannels query","data":{"workspaceId":"k5764fyf5zw3cjns9gy3rhp2yd87efcf","hasListChannelsRef":true},"timestamp":1779909683392}
+{"sessionId":"334b13","runId":"pre-fix","hypothesisId":"H3","location":"channel-sidebar.tsx","message":"listChannels query produced a value","data":{"count":4},"timestamp":1779909684213}

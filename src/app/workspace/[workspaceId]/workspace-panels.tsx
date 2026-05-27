@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import {
     ResizableHandle,
@@ -10,6 +10,7 @@ import {
 import { ChannelSidebar } from "@/features/workspaces/components/channel-sidebar";
 import { ChatbotPanel } from "@/features/workspaces/components/chatbot-panel";
 import { HelpPanel } from "@/features/workspaces/components/help-panel";
+import { TutorialModal } from "@/features/workspaces/components/tutorial-modal";
 import { WorkspaceSetupView } from "@/features/workspaces/components/workspace-setup-view";
 import { useWorkspaceUi } from "@/features/workspaces/context/workspace-ui-context";
 import { useBodyScrollLock, useIsMobile } from "@/hooks/use-mobile";
@@ -27,9 +28,9 @@ export function WorkspacePanels({ children }: WorkspacePanelsProps) {
     const {
         chatbotOpen,
         helpOpen,
+        mainView,
         setChatbotOpen,
         setHelpOpen,
-        mainView,
         channelSidebarOpen,
         setChannelSidebarOpen,
     } = useWorkspaceUi();
@@ -68,6 +69,51 @@ export function WorkspacePanels({ children }: WorkspacePanelsProps) {
             setChannelSidebarOpen(false);
         }
     }, [isMobile, setChannelSidebarOpen]);
+
+    const [tutorialOpen, setTutorialOpen] = useState(false);
+    const [tutorialStepId, setTutorialStepId] = useState<string | undefined>(
+        undefined,
+    );
+
+    useEffect(() => {
+        if (!workspaceId) return;
+        if (tutorialOpen) return;
+
+        // Show tutorial only once per workspace creation (i.e. when setup hasn't been completed yet).
+        // Persisted separately from "completed" so the modal can show again if user resets tutorial.
+        try {
+            const completedKey = `workspace-tutorial-completed-${workspaceId}`;
+            const autoShownKey = `workspace-tutorial-autoShown-${workspaceId}`;
+            const setupSeenKey = `workspace-setup-seen-${workspaceId}`;
+
+            const completed = localStorage.getItem(completedKey) === "1";
+            const autoShown = localStorage.getItem(autoShownKey) === "1";
+            const setupSeen = localStorage.getItem(setupSeenKey) === "1";
+
+            if (completed) return;
+            if (autoShown) return;
+            if (setupSeen) return;
+
+            // Mark as shown first to avoid double-open due to re-render.
+            localStorage.setItem(autoShownKey, "1");
+
+            // Close right-side panels so the modal is the primary focus.
+            setChatbotOpen(false);
+            setHelpOpen(false);
+
+            setTutorialStepId("getting-started");
+            setTutorialOpen(true);
+        } catch {
+            // Ignore localStorage errors (private mode, etc.)
+        }
+    }, [
+        workspaceId,
+        tutorialOpen,
+        setChatbotOpen,
+        setHelpOpen,
+        mainView,
+        isMobile,
+    ]);
 
     if (!workspaceId) {
         return <div className="min-h-0 flex-1">{children}</div>;
@@ -186,6 +232,12 @@ export function WorkspacePanels({ children }: WorkspacePanelsProps) {
                     </>
                 )}
             </ResizablePanelGroup>
+
+            <TutorialModal
+                open={tutorialOpen}
+                onOpenChange={setTutorialOpen}
+                initialStepId={tutorialStepId}
+            />
         </>
     );
 }

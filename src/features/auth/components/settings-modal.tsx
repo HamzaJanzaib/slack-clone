@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useTheme } from "next-themes"
+import { useTheme } from "@/components/providers/theme-provider"
 import { useAction } from "convex/react"
 import { api } from "../../../../convex/_generated/api"
 import {

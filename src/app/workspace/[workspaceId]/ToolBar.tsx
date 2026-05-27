@@ -17,6 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 
@@ -27,19 +28,26 @@ function ToolbarIconButton({
     ...props
 }: React.ComponentProps<typeof Button> & { label: string }) {
     return (
-        <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label={label}
-            className={cn(
-                "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground",
-                className,
-            )}
-            {...props}
-        >
-            {children}
-        </Button>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={label}
+                    className={cn(
+                        "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                        className,
+                    )}
+                    {...props}
+                >
+                    {children}
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" align="center">
+                {label}
+            </TooltipContent>
+        </Tooltip>
     );
 }
 

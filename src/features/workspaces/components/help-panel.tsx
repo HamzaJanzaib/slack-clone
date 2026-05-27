@@ -1,9 +1,11 @@
 "use client";
 
-import { BookOpen, CircleHelp, Keyboard, LifeBuoy, X } from "lucide-react";
+import { BookOpen, CircleHelp, Hash, Keyboard, LifeBuoy, MessageSquare, X } from "lucide-react";
+import { useState } from "react";
 import { useWorkspaceUi } from "@/features/workspaces/context/workspace-ui-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { TutorialModal } from "@/features/workspaces/components/tutorial-modal";
 
 const helpTopics = [
     {
@@ -11,6 +13,12 @@ const helpTopics = [
         title: "Getting started",
         description: "Learn the basics of channels, messages, and workspaces.",
         icon: BookOpen,
+    },
+    {
+        id: "channels-dms",
+        title: "Channels & DMs",
+        description: "Switch between public channels and direct messages.",
+        icon: Hash,
     },
     {
         id: "shortcuts",
@@ -28,6 +36,20 @@ const helpTopics = [
 
 export function HelpPanel() {
     const { setHelpOpen } = useWorkspaceUi();
+    const [tutorialOpen, setTutorialOpen] = useState(false);
+    const [tutorialStepId, setTutorialStepId] = useState<string | undefined>(
+        undefined,
+    );
+
+    const closeHelp = () => {
+        setTutorialOpen(false);
+        setHelpOpen(false);
+    };
+
+    const openTutorial = (stepId?: string) => {
+        setTutorialStepId(stepId);
+        setTutorialOpen(true);
+    };
 
     return (
         <aside className="flex h-full min-h-0 w-full flex-col border-l border-border bg-card">
@@ -41,7 +63,7 @@ export function HelpPanel() {
                 <button
                     type="button"
                     aria-label="Close help"
-                    onClick={() => setHelpOpen(false)}
+                    onClick={closeHelp}
                     className="flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground"
                 >
                     <X className="size-4" />
@@ -60,16 +82,56 @@ export function HelpPanel() {
                     </p>
                 </div>
 
+                <div className="mt-6 rounded-xl border border-border bg-background px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Information toolkit
+                    </p>
+                    <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="justify-start gap-2"
+                            onClick={() => openTutorial("getting-started")}
+                        >
+                            <BookOpen className="size-4" />
+                            Start tutorial
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="justify-start gap-2"
+                            onClick={() => openTutorial("channels-dms")}
+                        >
+                            <MessageSquare className="size-4" />
+                            Channels & DMs
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="justify-start gap-2"
+                            onClick={() => openTutorial("shortcuts")}
+                        >
+                            <Keyboard className="size-4" />
+                            Shortcuts
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="justify-start gap-2"
+                            onClick={() => openTutorial("support")}
+                        >
+                            <LifeBuoy className="size-4" />
+                            Support
+                        </Button>
+                    </div>
+                </div>
+
                 <ul className="mt-8 space-y-3">
                     {helpTopics.map((topic) => (
                         <li key={topic.id}>
                             <button
                                 type="button"
-                                onClick={() =>
-                                    window.alert(
-                                        `${topic.title} is coming soon.`,
-                                    )
-                                }
+                                onClick={() => openTutorial(topic.id)}
                                 className="flex w-full cursor-pointer items-start gap-3 rounded-lg border border-border bg-background px-4 py-3 text-left outline-none hover:bg-muted/50"
                             >
                                 <topic.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
@@ -91,15 +153,13 @@ export function HelpPanel() {
                 <Button
                     type="button"
                     className="w-full cursor-pointer"
-                    onClick={() =>
-                        window.alert("Help center is coming soon.")
-                    }
+                    onClick={() => openTutorial("support")}
                 >
                     Visit help center
                 </Button>
                 <button
                     type="button"
-                    onClick={() => setHelpOpen(false)}
+                    onClick={closeHelp}
                     className={cn(
                         "w-full cursor-pointer text-center text-xs text-muted-foreground",
                         "underline-offset-2 hover:underline",
@@ -108,6 +168,12 @@ export function HelpPanel() {
                     Close help
                 </button>
             </div>
+
+            <TutorialModal
+                open={tutorialOpen}
+                onOpenChange={setTutorialOpen}
+                initialStepId={tutorialStepId}
+            />
         </aside>
     );
 }

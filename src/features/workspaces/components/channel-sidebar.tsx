@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import {
@@ -20,6 +21,9 @@ import {
     markWorkspaceSetupSeen,
     useWorkspaceUi,
 } from "@/features/workspaces/context/workspace-ui-context";
+import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace";
+import { WorkspaceSettingsModal } from "@/features/workspaces/components/workspace-settings-modal";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { BotLogo } from "@/features/workspaces/components/bot-logo";
@@ -119,10 +123,26 @@ export function ChannelSidebar() {
     const params = useParams();
     const workspaceId = params?.workspaceId as Id<"workspaces"> | undefined;
     const { data: workspace, isLoading } = useGetWorkspace(workspaceId);
+    const updateWorkspace = useUpdateWorkspace();
     const currentUser = useQuery(api.users.currentUser);
     const { tab, setTab, setChannelSidebarOpen } = useWorkspaceUi();
+    const inlineNameInputRef = useRef<HTMLInputElement>(null);
+    const [isRenamingInline, setIsRenamingInline] = useState(false);
+    const [inlineName, setInlineName] = useState("");
+    const [isSavingInline, setIsSavingInline] = useState(false);
+    const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+    const [settingsMode, setSettingsMode] = useState<"settings" | "edit">(
+        "settings",
+    );
 
     const closeMobileSidebar = () => setChannelSidebarOpen(false);
+    const isAdmin = workspace?.role === "admin";
+
+    useEffect(() => {
+        if (!isRenamingInline) return;
+        inlineNameInputRef.current?.focus();
+        inlineNameInputRef.current?.select();
+    }, [isRenamingInline]);
 
     const handleSetupClick = () => {
         if (workspaceId) markWorkspaceSetupSeen(workspaceId);
@@ -134,6 +154,33 @@ export function ChannelSidebar() {
         if (workspaceId) markWorkspaceSetupSeen(workspaceId);
         setTab(channelTabId(channelId));
         closeMobileSidebar();
+    };
+
+    const startInlineRename = () => {
+        if (!isAdmin || !workspace) return;
+        setInlineName(workspace.name);
+        setIsRenamingInline(true);
+    };
+
+    const saveInlineRename = async () => {
+        if (!workspace || !workspaceId || !isAdmin) {
+            setIsRenamingInline(false);
+            return;
+        }
+
+        const trimmed = inlineName.trim();
+        if (!trimmed || trimmed === workspace.name) {
+            setIsRenamingInline(false);
+            return;
+        }
+
+        setIsSavingInline(true);
+        try {
+            await updateWorkspace({ workspaceId, name: trimmed });
+        } finally {
+            setIsSavingInline(false);
+            setIsRenamingInline(false);
+        }
     };
 
     const userName =
@@ -148,11 +195,38 @@ export function ChannelSidebar() {
                 ) : (
                     <button
                         type="button"
+                        onDoubleClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            startInlineRename();
+                        }}
                         className="flex min-w-0 cursor-pointer items-center gap-0.5 rounded-md px-0.5 py-0.5 text-[18px] font-bold leading-tight outline-none hover:bg-sidebar-accent"
                     >
-                        <span className="truncate">
-                            {workspace?.name ?? "Testing"}
-                        </span>
+                        {isRenamingInline ? (
+                            <Input
+                                ref={inlineNameInputRef}
+                                value={inlineName}
+                                disabled={isSavingInline}
+                                className="h-8 min-w-0 text-base font-semibold"
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => setInlineName(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        void saveInlineRename();
+                                    }
+                                    if (e.key === "Escape") {
+                                        e.preventDefault();
+                                        setIsRenamingInline(false);
+                                    }
+                                }}
+                                onBlur={() => void saveInlineRename()}
+                            />
+                        ) : (
+                            <span className="truncate">
+                                {workspace?.name ?? "Testing"}
+                            </span>
+                        )}
                         <ChevronDown className="size-4 shrink-0 opacity-80" />
                     </button>
                 )}
@@ -160,13 +234,21 @@ export function ChannelSidebar() {
                     <button
                         type="button"
                         aria-label="Settings"
+                        onClick={() => {
+                            setSettingsMode("settings");
+                            setSettingsModalOpen(true);
+                        }}
                         className="flex size-8 cursor-pointer items-center justify-center rounded-md border border-sidebar-border text-sidebar-foreground/80 outline-none hover:bg-sidebar-accent"
                     >
                         <Settings className="size-4" />
                     </button>
                     <button
                         type="button"
-                        aria-label="Compose"
+                        aria-label="Edit workspace"
+                        onClick={() => {
+                            setSettingsMode("edit");
+                            setSettingsModalOpen(true);
+                        }}
                         className="flex size-8 cursor-pointer items-center justify-center rounded-md border border-sidebar-border text-sidebar-foreground/80 outline-none hover:bg-sidebar-accent"
                     >
                         <SquarePen className="size-4" />
@@ -306,6 +388,18 @@ export function ChannelSidebar() {
                     </div>
                 </div>
             </div>
+
+            {!isLoading && workspace && workspaceId && (
+                <WorkspaceSettingsModal
+                    open={settingsModalOpen}
+                    onOpenChange={setSettingsModalOpen}
+                    workspaceId={workspaceId}
+                    workspaceName={workspace.name}
+                    inviteCode={workspace.inviteCode}
+                    isAdmin={isAdmin}
+                    mode={settingsMode}
+                />
+            )}
         </aside>
     );
 }
